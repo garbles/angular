@@ -11,7 +11,7 @@ source $SCRIPT_DIR/env_dart.sh
 cd $SCRIPT_DIR/../..
 
 # Variables
-DDC_WARNING_CAP="260"
+DDC_WARNING_CAP="180"
 DDC_DIR=`pwd`/tmp/dev_compiler
 DDC_VERSION="0.1.14"
 
@@ -60,3 +60,18 @@ then
 else
   echo "Warning count ok"
 fi
+
+function countWarnings {
+  local GREP_PATTERN=$1
+  local COUNT=`cat $LOG_FILE | grep -E '$GREP_PATTERN' | wc -l | sed -e 's/^[[:space:]]*//'`
+  echo $COUNT
+}
+
+SEVERE_ANGULAR_COUNT=$(countWarnings '^severe.*package:angular2')
+if [[ "$SEVERE_ANGULAR_COUNT" -gt "0" ]]
+then
+  echo "Found severe errors in angular2 package"
+  exit 1
+fi
+
+echo 'Dart DDC build finished'
